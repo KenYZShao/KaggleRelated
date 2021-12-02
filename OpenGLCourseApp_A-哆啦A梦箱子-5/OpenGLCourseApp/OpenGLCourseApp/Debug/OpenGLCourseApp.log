@@ -1,0 +1,10 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (OpenGLCourseApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  glad.c
+  main.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_A-哆啦A梦箱子-5\OpenGLCourseApp\OpenGLCourseApp\texture\shader_m.h(56,40): warning C4101: 'e': unreferenced local variable
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_A-哆啦A梦箱子-5\OpenGLCourseApp\OpenGLCourseApp\main.cpp(214,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_A-哆啦A梦箱子-5\OpenGLCourseApp\OpenGLCourseApp\main.cpp(278,23): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  stb.cpp
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  OpenGLCourseApp.vcxproj -> C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_A-哆啦A梦箱子-5\OpenGLCourseApp\Debug\OpenGL01.exe
