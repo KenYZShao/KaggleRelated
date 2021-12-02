@@ -1,0 +1,55 @@
+
+Notes:
+
+The submission includes:
+
+1.Youtube Demo: https://youtu.be/byU8sMr2tAY
+
+2.A report(Assignment 1 - Plane rotations-Report.pdf)
+
+3.A zip file contains important source code includeing:
+main.cpp
+Camera.cpp
+Material.cpp
+Window.cpp
+Mesh.cpp
+Model.cpp
+Shader.cpp
+Skybox.cpp
+Texture.cpp
+
+
+Mainly thank Professor Rachel McDonell who provides us this opportunity to study
+and guided us patiently. 
+
+Also thank my peer, Mr. Shijun Zhang, who selflessly helped me debugging the code related to 
+keyboard controlling of rotations, where I struggled for several weeks.
+
+
+
+References:
+
+Jan Ondrej-Coordinate Spaces Trinity College Dublin
+
+Rene Schwarz-Memorandum-Quaternions and Spatial Rotation
+https://downloads.rene-schwarz.com/do...​
+
+ch_gimballock.pdf (umd.edu) 
+http://www.math.umd.edu/~immortal/MAT...​
+
+LearnOpenGL - Camera
+https://learnopengl.com/Getting-start...​
+LearnOpenGL - Model
+https://learnopengl.com/Model-Loading...​
+LearnOpenGL - Transformations
+https://www.bing.com/newtabredir?url=...​
+LearnOpenGL - Coordinate Systems
+https://learnopengl.com/Getting-start...​
+
+C++ - Quaternion reaching gimbal lock - Stack Overflow
+https://stackoverflow.com/questions/2...​
+
+傅老师游戏大师课(Mr. Fu's OpenGL tutorial, this is really helpful for Chinese Speakers.)
+https://www.youtube.com/channel/UCPpD...​
+OpenGL + C++: Modern Graphics for Groundbreaking Games | Udemy
+https://www.udemy.com/course/graphics...

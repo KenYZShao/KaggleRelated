@@ -1,0 +1,190 @@
+#include <stdio.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/vector_angle.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include <time.h>
+#include "node.h"
+#include<GLFW/glfw3.h>
+
+using namespace glm;
+
+float XAngle = 0;
+float YAngle = 0;
+glm::vec3 TargetPos = glm::vec3(0.0f, 0.0f, 0.0f);
+bool animation_running = false;
+float animation_fill = 0.0f;
+
+GLfloat JointCol[] = { 0.8, 0.5, 0.0, 1.0 };
+GLfloat NodeCol[] = {1.0, 0.0, 1.0, 1.0 };
+GLfloat TipCol[] = { 0.4,0.8,0.8,1.0 };
+GLfloat TargetCol[] = {1.0f,1.0f,1.0f, 1.0 };
+
+Node* root;
+
+void DrawNode(Node* n) {
+glPushMatrix();
+
+ glm::mat4 previous = n->Mat;
+
+ if (n->parent != NULL) {
+n->Mat = glm::translate(n->Mat, glm::vec3(0.0f, 0.0f, n->parent->length));
+n->Mat = glm::rotate(n->Mat, n->rotation.x, glm::vec3(n->Mat*glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)));
+n->Mat = glm::rotate(n->Mat, n->rotation.y, glm::vec3(n->Mat*glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
+n->Mat = glm::rotate(n->Mat, n->rotation.z, glm::vec3(n->Mat*glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+n->Mat = n->parent->Mat * n->Mat;
+}
+else {
+n->Mat = glm::rotate(n->Mat, n->rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+n->Mat = glm::rotate(n->Mat, n->rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+n->Mat = glm::rotate(n->Mat, n->rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+}
+
+ glLoadMatrixf(glm::value_ptr(n->Mat));
+
+ if (n->parent != NULL) {//Draw Node
+glMaterialfv(GL_FRONT, GL_DIFFUSE, NodeCol);
+glutSolidSphere(0.2f, 32, 32);
+}
+
+ glMaterialfv(GL_FRONT, GL_DIFFUSE, JointCol);//Draw Joint
+GLUquadricObj* q = gluNewQuadric();
+gluCylinder(q, 0.1f, 0.1f, n->length, 32, 32);
+gluDeleteQuadric(q);
+
+ if (n->child==NULL) {//Draw tip
+glLoadMatrixf(glm::value_ptr(glm::translate(n->Mat, glm::vec3(0.0f, 0.0f, n->length))));
+glMaterialfv(GL_FRONT, GL_DIFFUSE, TipCol);
+gluCylinder(q, 0.2f, 0.0f, 0.5f, 32, 32);
+glPopMatrix();
+}
+
+ if (n->child != NULL) {
+DrawNode(n->child);
+}
+n->Mat = previous;
+}
+
+void MainScene() {
+glClearColor(0, 0, 0, 1);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+ glm::vec3 CameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 CameraDir = glm::vec3(0.0f, 1.0f, -25);
+glm::vec3 WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::mat4 V = glm::lookAt(CameraDir, CameraPos, WorldUp);
+V = glm::rotate(V, XAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+V = glm::rotate(V, YAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+glm::mat4 P = glm::perspective(100.0f, 1.0f, 1.0f, 100.0f);
+glMatrixMode(GL_PROJECTION);
+glLoadMatrixf(glm::value_ptr(P));
+glMatrixMode(GL_MODELVIEW);
+glm::mat4 M = glm::mat4(1.0f);
+glLoadMatrixf(glm::value_ptr(V*M));
+
+ glPushMatrix();//Draw Target
+glMaterialfv(GL_FRONT, GL_DIFFUSE, TargetCol);
+glLoadMatrixf(glm::value_ptr(glm::translate(M*V, TargetPos)));
+glutSolidSphere(0.3f, 32, 32);
+glPopMatrix();
+
+ root->Mat = glm::rotate(M*V, -90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+ DrawNode(root);
+
+ glutSwapBuffers();
+}
+
+
+void CCD(Node *node, vec3 TargetPos, int iterations = 100) {
+while (iterations--) {
+Node * currentNode = node;
+while (currentNode->parent->parent != NULL) {
+vec4 endPosition = currentNode->getEndPosition();
+vec4 startPosition = currentNode->parent->getEndPosition();
+vec3 toTarget = normalize(vec3(TargetPos.x - startPosition.x, TargetPos.y - startPosition.y, TargetPos.z - startPosition.z));
+vec3 toEnd = normalize(vec3(endPosition.x - startPosition.x, endPosition.y - startPosition.y, endPosition.z - startPosition.z));
+float cosine = dot(toEnd, toTarget);//目标与当前位置夹角
+if (cosine < 0.99) {
+vec3 crossResult = cross(toEnd, toTarget);//得到旋转轴
+float angle = glm::angle(toTarget, toEnd);//夹角
+quat rotation = normalize(angleAxis(angle, crossResult));//得到用于选择的四元数
+glm::vec3 euler = glm::eulerAngles(rotation);//转
+currentNode->setRotateAngle(euler.x, euler.y, euler.z);
+}
+currentNode = currentNode->parent;
+}
+}
+}
+
+void keyCtro(unsigned char c, int x, int y) {
+if (c == 'q') {
+TargetPos.z -= 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 'e') {
+TargetPos.z += 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 'w') {
+TargetPos.y += 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 's') {
+TargetPos.y -= 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 'a') {
+TargetPos.x -= 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 'd') {
+TargetPos.x += 0.2f;
+CCD(root->FindFinalChild(), TargetPos);
+}
+else if (c == 'j') {
+YAngle += 0.1f;
+}
+else if (c == 'l') {
+YAngle -= 0.1f;
+}
+else if (c == 'i') {
+XAngle += 0.1f;
+}
+else if (c == 'k') {
+XAngle -= 0.1f;
+}
+}
+
+int main(int argc, char* argv[]) {
+
+ glutInit(&argc, argv);
+glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+glutInitWindowSize(950, 950);
+glutInitWindowPosition(0, 0);
+glutCreateWindow("IK");
+
+ glutIdleFunc(MainScene);
+glutKeyboardFunc(keyCtro);
+glEnable(GL_LIGHTING);
+glEnable(GL_LIGHT0);
+glEnable(GL_DEPTH_TEST);
+
+ root = new Node(0.0f);
+
+ root->add(new Node(1))//Add node
+->add(new Node(1))
+->add(new Node(1))
+->add(new Node(1))
+->add(new Node(1));
+
+ CCD(root->FindFinalChild(), TargetPos);
+
+ glutMainLoop();
+
+ delete root;
+
+ return 0;
+}
