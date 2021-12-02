@@ -1,3 +1,5 @@
+#KaggleRelated Code from 2019 Oct, this comment is written in 2nd Dec 2021
+
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import datasets, linear_model
