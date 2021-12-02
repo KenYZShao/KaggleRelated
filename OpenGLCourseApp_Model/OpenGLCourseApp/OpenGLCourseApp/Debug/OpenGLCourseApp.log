@@ -1,0 +1,33 @@
+﻿  Camera.cpp
+  DirectionalLight.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\DirectionalLight.cpp(18,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\DirectionalLight.cpp(19,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\DirectionalLight.cpp(21,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\DirectionalLight.cpp(22,14): warning C4244: 'argument': conversion from 'GLfloat' to 'GLint', possible loss of data
+  Light.cpp
+  main.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\main.cpp(203,15): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+  Material.cpp
+  Mesh.cpp
+  Model.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Model.cpp(29,10): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'const std::string'
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Model.cpp(108,13): warning C4477: 'printf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'std::string'
+  PointLight.cpp
+  Shader.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Shader.cpp(201,75): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Shader.cpp(201,26): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Shader.cpp(200,91): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Shader.cpp(200,42): warning C4244: 'argument': conversion from 'GLuint' to 'GLfloat', possible loss of data
+  SpotLight.cpp
+  Texture.cpp
+  Window.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(136,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(137,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(141,28): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(142,40): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(144,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(145,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+  Generating Code...
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(86): warning C4715: 'Window::Initialise': not all control paths return a value
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  OpenGLCourseApp.vcxproj -> C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Model\OpenGLCourseApp\Debug\OpenGLCourseApp.exe
