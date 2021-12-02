@@ -1,0 +1,26 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(513,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (OpenGLCourseApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  glad.c
+  main.cpp
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\texture\shader_m.h(56,40): warning C4101: 'e': unreferenced local variable
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(194,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(229,62): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(230,66): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(237,62): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(238,66): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(245,62): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(246,66): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(253,62): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(254,66): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(262,57): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(263,61): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(365,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(366,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(370,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(371,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(373,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(374,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\OpenGLCourseApp\main.cpp(383,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  stb.cpp
+  Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  OpenGLCourseApp.vcxproj -> C:\CloudMusic\RenderingAssignment\Lighting-很多箱子-6\OpenGLCourseApp\Debug\OpenGL01.exe
