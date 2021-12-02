@@ -1,0 +1,10 @@
+﻿  Window.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(136,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(137,22): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(141,28): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(142,40): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(144,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(145,21): warning C4244: '=': conversion from 'double' to 'GLfloat', possible loss of data
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\OpenGLCourseApp\Window.cpp(86): warning C4715: 'Window::Initialise': not all control paths return a value
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  OpenGLCourseApp.vcxproj -> C:\CloudMusic\RenderingAssignment\OpenGLCourseApp_Textures\OpenGLCourseApp\Debug\OpenGLCourseApp.exe
