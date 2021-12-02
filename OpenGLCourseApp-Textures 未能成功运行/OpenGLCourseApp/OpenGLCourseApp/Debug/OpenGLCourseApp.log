@@ -1,0 +1,31 @@
+﻿  main.cpp
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp-Textures\OpenGLCourseApp\OpenGLCourseApp\main.cpp(95,15): warning C4244: 'initializing': conversion from 'double' to 'GLfloat', possible loss of data
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Window::Window(void)" (??0Window@@QAE@XZ) referenced in function "void __cdecl `dynamic initializer for 'mainWindow''(void)" (??__EmainWindow@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Window::Window(int,int)" (??0Window@@QAE@HH@Z) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: int __thiscall Window::Initialise(void)" (?Initialise@Window@@QAEHXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: float __thiscall Window::getXChange(void)" (?getXChange@Window@@QAEMXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: float __thiscall Window::getYChange(void)" (?getYChange@Window@@QAEMXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Window::~Window(void)" (??1Window@@QAE@XZ) referenced in function "void __cdecl `dynamic atexit destructor for 'mainWindow''(void)" (??__FmainWindow@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Mesh::Mesh(void)" (??0Mesh@@QAE@XZ) referenced in function "void __cdecl CreateObjects(void)" (?CreateObjects@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Mesh::CreateMesh(float *,unsigned int *,unsigned int,unsigned int)" (?CreateMesh@Mesh@@QAEXPAMPAIII@Z) referenced in function "void __cdecl CreateObjects(void)" (?CreateObjects@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Mesh::RenderMesh(void)" (?RenderMesh@Mesh@@QAEXXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Shader::Shader(void)" (??0Shader@@QAE@XZ) referenced in function "void __cdecl CreateShaders(void)" (?CreateShaders@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Shader::CreateFromFiles(char const *,char const *)" (?CreateFromFiles@Shader@@QAEXPBD0@Z) referenced in function "void __cdecl CreateShaders(void)" (?CreateShaders@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: unsigned int __thiscall Shader::GetProjectionLocation(void)" (?GetProjectionLocation@Shader@@QAEIXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: unsigned int __thiscall Shader::GetModelLocation(void)" (?GetModelLocation@Shader@@QAEIXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: unsigned int __thiscall Shader::GetViewLocation(void)" (?GetViewLocation@Shader@@QAEIXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Shader::UseShader(void)" (?UseShader@Shader@@QAEXXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Shader::~Shader(void)" (??1Shader@@QAE@XZ) referenced in function "public: void * __thiscall Shader::`scalar deleting destructor'(unsigned int)" (??_GShader@@QAEPAXI@Z)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Camera::Camera(void)" (??0Camera@@QAE@XZ) referenced in function "void __cdecl `dynamic initializer for 'camera''(void)" (??__Ecamera@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Camera::Camera(struct glm::vec<3,float,0>,struct glm::vec<3,float,0>,float,float,float,float)" (??0Camera@@QAE@U?$vec@$02M$0A@@glm@@0MMMM@Z) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Camera::keyControl(bool *,float)" (?keyControl@Camera@@QAEXPA_NM@Z) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Camera::mouseControl(float,float)" (?mouseControl@Camera@@QAEXMM@Z) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: struct glm::mat<4,4,float,0> __thiscall Camera::calculateViewMatrix(void)" (?calculateViewMatrix@Camera@@QAE?AU?$mat@$03$03M$0A@@glm@@XZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Camera::~Camera(void)" (??1Camera@@QAE@XZ) referenced in function "void __cdecl `dynamic atexit destructor for 'camera''(void)" (??__Fcamera@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Texture::Texture(void)" (??0Texture@@QAE@XZ) referenced in function "void __cdecl `dynamic initializer for 'brickTexture''(void)" (??__EbrickTexture@@YAXXZ)
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Texture::Texture(char *)" (??0Texture@@QAE@PAD@Z) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Texture::LoadTexture(void)" (?LoadTexture@Texture@@QAEXXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: void __thiscall Texture::UseTexture(void)" (?UseTexture@Texture@@QAEXXZ) referenced in function _main
+main.obj : error LNK2019: unresolved external symbol "public: __thiscall Texture::~Texture(void)" (??1Texture@@QAE@XZ) referenced in function "void __cdecl `dynamic atexit destructor for 'brickTexture''(void)" (??__FbrickTexture@@YAXXZ)
+C:\CloudMusic\RenderingAssignment\OpenGLCourseApp-Textures\OpenGLCourseApp\Debug\OpenGLCourseApp.exe : fatal error LNK1120: 27 unresolved externals
