@@ -1,0 +1,52 @@
+#define STB_IMAGE_IMPLEMENTATION
+#define _CRT_SECURE_NO_WARNINGS//Shao Jadded 
+#include<iostream>//Shao Jadded 
+#include <stdio.h>
+#include <string.h>
+#include <cmath>
+#include <vector>
+
+#include <GL\glew.h>
+//#include<freeglut\glut.h>//This was long back, ignore it
+//#include <GL\freeglut.h>//Shao Jadded, but not working
+#include <GLFW\glfw3.h>//Original was there, if I remove it, it still no affects.
+
+#include "Shader.h"//Changed the order, according to J
+#include "Material.h"//Changed the order, according to J
+
+#include <glm\glm.hpp>
+#include <glm\gtx\euler_angles.hpp>//Added according to J
+#include <glm\gtc\matrix_transform.hpp>
+#include<glm\gtx\quaternion.hpp>//Added according to J
+#include <glm\gtc\quaternion.hpp>//Added according to J
+#include <glm\gtc\type_ptr.hpp>
+
+#include <fstream>
+
+#include "CommonValues.h"//There was no this include in J
+
+#include "Camera.h"//Same name in J, May need to changed some parameters inside
+#include "Texture.h"//There was no this include in J
+#include "DirectionalLight.h"//named as LightDirectional.h in J
+#include "PointLight.h"//named as LightPoint.h in J
+#include "SpotLight.h"//named as LightSpot.h in J
+
+#include "Window.h"//There was no this include in J
+#include "Mesh.h"//May need to changed some parameters inside
+#include "Model.h"//May need to changed some parameters inside
+//#include "BlendShapes.h"//There was this include in J, but may not be used 
+#include "Skybox.h"//There was no this include in J
+
+//-----------------Added according to J---------------//
+#define STB_IMAGE_IMPLEMENTATION//Added according to J
+#include "stb_image.h"//Added according to J
+#ifndef _WIN32//Added according to J
+#include <dirent.h>//Added according to J
+#include <sys/stat.h>//Added according to J
+#endif
+#define GLFW_DLL
+
+#include<GLFW/glfw3.h>//Added according to J
+//#include<AntTweakBar.h>//Added according to J
+//#include <Eigen/Geometry>//Added according to J, may not be used
+//----------------------------------------------------//

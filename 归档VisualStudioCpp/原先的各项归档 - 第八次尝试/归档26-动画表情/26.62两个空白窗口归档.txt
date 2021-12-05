@@ -1,0 +1,733 @@
+#define STB_IMAGE_IMPLEMENTATION
+#define _CRT_SECURE_NO_WARNINGS//Shao Jadded 
+#include<iostream>//Shao Jadded 
+//******************************//
+#include <stdio.h>
+#include <string.h>
+#include <cmath>
+#include <vector>
+
+#include <GL\glew.h>
+//#include<freeglut\glut.h>
+#include <GLFW\glfw3.h>//Original was there, if I remove it, it still no affects.
+
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
+#include <glm\gtx\euler_angles.hpp>//Added according to J
+#include <glm\gtx\quaternion.hpp>//Added according to J
+#include <glm\gtc\quaternion.hpp>//Added according to J
+
+#include <fstream>//Shao added as J, not affected
+
+#include "CommonValues.h"
+
+#include "Window.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "Camera.h"//Same name in J, May need to changed some parameters inside
+//#include "Texture.h"//There was no this include in J
+//#include "DirectionalLight.h"//named as LightDirectional.h in J
+//#include "PointLight.h"//named as LightPoint.h in J
+//#include "SpotLight.h"//named as LightSpot.h in J
+#include "Material.h"
+
+#include "Model.h"
+
+//-----------------Added according to J---------------//
+#define STB_IMAGE_IMPLEMENTATION//Added according to J
+//#include "stb_image.h"//Added according to J,!!!this is the excat one lead to those 103 errors
+#ifndef _WIN32//Added according to J
+#include <dirent.h>//Added according to J
+#include <sys/stat.h>//Added according to J
+#endif
+#define GLFW_DLL
+
+#include<GLFW/glfw3.h>//Added according to J
+#include<AntTweakBar.h>//Added according to J
+//#include <Eigen/Geometry>//Added according to J, may not be used
+//----------------------------------------------------//
+
+using namespace std;
+using namespace glm;
+
+const float toRadians = 3.14159265f / 180.0f;
+
+Window mainWindow;
+//Window myWindow;
+std::vector<Mesh*> meshList;
+std::vector<Shader> shaderList;
+Camera camera;
+
+Texture brickTexture;
+Texture dirtTexture;
+Texture plainTexture;
+
+//Material shinyMaterial;
+//Material dullMaterial;
+
+//Model xwing;
+//Model blackhawk;//Shao removed these model01
+
+DirectionalLight mainLight;
+PointLight pointLights[MAX_POINT_LIGHTS];
+SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
+
+// Vertex Shader
+static const char* vShader = "Shaders/shader.vert";
+
+// Fragment Shader
+static const char* fShader = "Shaders/shader.frag";
+
+//Merely line63-70 global variable****************************************
+int key = 0;
+glm::vec3 RotationAxis;
+glm::vec3 modelposition = glm::vec3(0, 800.0f, 0.0f);
+bool read = false;
+bool flag = false;
+float weight[25] = { 0 };
+float V[25][30000];
+//ofstream outfile("test.txt");//text.txt not available 
+//Added up to here*******************************************************************
+
+
+void calcAverageNormals(unsigned int * indices, unsigned int indicecount, GLfloat * vertices, unsigned int verticecount,
+						unsigned int vlength, unsigned int normaloffset)
+{
+	for (size_t i = 0; i < indicecount; i += 3)
+	{
+		unsigned int in0 = indices[i] * vlength;
+		unsigned int in1 = indices[i + 1] * vlength;
+		unsigned int in2 = indices[i + 2] * vlength;
+		glm::vec3 v1(vertices[in1] - vertices[in0], vertices[in1 + 1] - vertices[in0 + 1], vertices[in1 + 2] - vertices[in0 + 2]);
+		glm::vec3 v2(vertices[in2] - vertices[in0], vertices[in2 + 1] - vertices[in0 + 1], vertices[in2 + 2] - vertices[in0 + 2]);
+		glm::vec3 normal = glm::cross(v1, v2);
+		normal = glm::normalize(normal);
+		
+		in0 += normaloffset; in1 += normaloffset; in2 += normaloffset;
+		vertices[in0] += normal.x; vertices[in0 + 1] += normal.y; vertices[in0 + 2] += normal.z;
+		vertices[in1] += normal.x; vertices[in1 + 1] += normal.y; vertices[in1 + 2] += normal.z;
+		vertices[in2] += normal.x; vertices[in2 + 1] += normal.y; vertices[in2 + 2] += normal.z;
+	}
+
+	for (size_t i = 0; i < verticecount / vlength; i++)
+	{
+		unsigned int noffset = i * vlength + normaloffset;
+		glm::vec3 vec(vertices[noffset], vertices[noffset + 1], vertices[noffset + 2]);
+		vec = glm::normalize(vec);
+		vertices[noffset] = vec.x; vertices[noffset + 1] = vec.y; vertices[noffset + 2] = vec.z;
+}
+} //shao once removed the normal01
+
+void CreateObjects() 
+{
+	unsigned int indices[] = {		
+		0, 3, 1,
+		1, 3, 2,
+		2, 3, 0,
+		0, 1, 2
+	};
+
+	GLfloat vertices[] = {
+	//	x      y      z			u	  v			nx	  ny    nz
+		-1.0f, -1.0f, -0.6f,		0.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 1.0f,		0.5f, 0.0f,		0.0f, 0.0f, 0.0f,
+		1.0f, -1.0f, -0.6f,		1.0f, 0.0f,		0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,		0.5f, 1.0f,		0.0f, 0.0f, 0.0f
+	};
+
+	unsigned int floorIndices[] = {
+		0, 2, 1,
+		1, 2, 3
+	};
+
+	GLfloat floorVertices[] = {
+		-10.0f, 0.0f, -10.0f,	0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		10.0f, 0.0f, -10.0f,	10.0f, 0.0f,	0.0f, -1.0f, 0.0f,
+		-10.0f, 0.0f, 10.0f,	0.0f, 10.0f,	0.0f, -1.0f, 0.0f,
+		10.0f, 0.0f, 10.0f,		10.0f, 10.0f,	0.0f, -1.0f, 0.0f
+	};
+
+	calcAverageNormals(indices, 12, vertices, 32, 8, 5);//Shao once removed the Normal02
+
+	Mesh *obj1 = new Mesh();
+	obj1->CreateMesh(vertices, indices, 32, 12);
+	meshList.push_back(obj1);
+
+	Mesh *obj2 = new Mesh();
+	obj2->CreateMesh(vertices, indices, 32, 12);
+	meshList.push_back(obj2);
+
+	Mesh *obj3 = new Mesh();
+	obj3->CreateMesh(floorVertices, floorIndices, 32, 6);
+	meshList.push_back(obj3);//Above 10 lines of code cannot be removed, it shows abort something, after remove lots of models, the same problem still came
+}
+
+void CreateShaders()
+{
+	Shader *shader1 = new Shader();
+	shader1->CreateFromFiles(vShader, fShader);
+	shaderList.push_back(*shader1);
+}
+
+//*************************Copy line 136-438 here**************************
+//===============================================================================  READ OBJ  ========================================================
+std::vector<int> IND;
+
+
+inline void TwEventMouseButtonGLFW3(GLFWwindow* window, int button, int action, int mods)
+{
+	TwEventMouseButtonGLFW(button, action);
+}
+inline void TwEventMousePosGLFW3(GLFWwindow* window, double xpos, double ypos)
+{
+	TwMouseMotion(int(xpos), int(ypos));
+}
+inline void TwEventMouseWheelGLFW3(GLFWwindow* window, double xoffset, double yoffset)
+{
+	TwEventMouseWheelGLFW(yoffset);
+}
+inline void TwEventKeyGLFW3(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	TwEventKeyGLFW(key, action);
+}
+inline void TwEventCharGLFW3(GLFWwindow* window, int codepoint)
+{
+	TwEventCharGLFW(codepoint, GLFW_PRESS);
+}
+inline void TwWindowSizeGLFW3(GLFWwindow* window, int width, int height)
+{
+	TwWindowSize(width, height);
+}
+
+
+#pragma region read OBJ
+std::vector<float> read_obj(const std::string& filename)
+{
+	char   s[200];
+	float  x, y, z;
+	std::vector<vec3> positions; //vertex positions
+	std::vector<vec2> tex_coords;   //texture coordinates
+	std::vector<vec3> normals;  //normals 
+	std::vector<std::vector<int>> indices; //connectivity
+
+	// open file (in ASCII mode)
+	FILE* in = fopen(filename.c_str(), "r");
+	//if (!in) return false;
+	// clear line once
+	memset(&s, 0, 200);
+
+	// parse line by line (currently only supports vertex positions & faces
+	while (in && !feof(in) && fgets(s, 200, in))
+	{
+		// comment
+		if (s[0] == '#' || isspace(s[0])) continue;
+		// vertex
+		else if (strncmp(s, "v ", 2) == 0)
+		{
+			if (sscanf(s, "v %f %f %f", &x, &y, &z))
+			{
+				positions.push_back(vec3(x, y, z));
+			}
+		}
+		// normal
+		else if (strncmp(s, "vn ", 3) == 0)
+		{
+			if (sscanf(s, "vn %f %f %f", &x, &y, &z))
+			{
+				normals.push_back(vec3(x, y, z));
+			}
+		}
+		// texture coordinate
+		else if (strncmp(s, "vt ", 3) == 0)
+		{
+			if (sscanf(s, "vt %f %f", &x, &y))
+			{
+				tex_coords.push_back(vec2(x, y));
+			}
+		}
+		// face
+		else if (strncmp(s, "f ", 2) == 0)
+		{
+			int component(0), nV(0);
+			bool endOfVertex(false);
+			char* p0, * p1(s + 1);
+
+			std::vector<int> polygon;
+
+			// skip white-spaces
+			while (*p1 == ' ') ++p1;
+
+			while (p1)
+			{
+				p0 = p1;
+
+				// overwrite next separator
+
+				// skip '/', '\n', ' ', '\0', '\r' <-- don't forget Windows
+				while (*p1 != '/' && *p1 != '\r' && *p1 != '\n' && *p1 != ' ' && *p1 != '\0') ++p1;
+
+				// detect end of vertex
+				if (*p1 != '/')
+				{
+					endOfVertex = true;
+				}
+
+				// replace separator by '\0'
+				if (*p1 != '\0')
+				{
+					*p1 = '\0';
+					p1++; // point to next token
+				}
+
+				// detect end of line and break
+				if (*p1 == '\0' || *p1 == '\n')
+				{
+					p1 = 0;
+				}
+
+				// read next vertex component
+				if (*p0 != '\0')
+				{
+					switch (component)
+					{
+					case 0: // vertex
+					{
+						polygon.push_back(atoi(p0) - 1);
+						break;
+					}
+					case 1: // texture coord
+					{
+						//add code for saving texture coordinate index
+						break;
+					}
+					case 2: // normal
+					  //add code for saving normal coordinate index
+						break;
+					}
+				}
+
+				++component;
+
+				if (endOfVertex)
+				{
+					component = 0;
+					nV++;
+					endOfVertex = false;
+				}
+			}
+
+			indices.push_back(polygon);
+		}
+		// clear line
+		memset(&s, 0, 200);
+	}
+	//fclose(in);
+
+	std::vector<float> v;
+
+	for (int i = 0; i < positions.size(); i++) {
+		//
+		v.push_back(positions[i].x);
+		v.push_back(positions[i].y);
+		v.push_back(positions[i].z);
+		v.push_back(normals[i].x);
+		v.push_back(normals[i].y);
+		v.push_back(normals[i].z);
+	}
+
+	return v;
+}
+
+void read_objIND(const std::string& filename)
+{
+	char   s[200];
+	float  x, y, z;
+	std::vector<vec3> positions; //vertex positions
+	std::vector<vec2> tex_coords;   //texture coordinates
+	std::vector<vec3> normals;  //normals 
+	std::vector<std::vector<int>> indices; //connectivity
+
+	// open file (in ASCII mode)
+	FILE* in = fopen(filename.c_str(), "r");
+	//if (!in) return false;
+	// clear line once
+	memset(&s, 0, 200);
+
+	// parse line by line (currently only supports vertex positions & faces
+	while (in && !feof(in) && fgets(s, 200, in))
+	{
+		// comment
+		if (s[0] == '#' || isspace(s[0])) continue;
+		// vertex
+		else if (strncmp(s, "v ", 2) == 0)
+		{
+			if (sscanf(s, "v %f %f %f", &x, &y, &z))
+			{
+				positions.push_back(vec3(x, y, z));
+			}
+		}
+		// normal
+		else if (strncmp(s, "vn ", 3) == 0)
+		{
+			if (sscanf(s, "vn %f %f %f", &x, &y, &z))
+			{
+				normals.push_back(vec3(x, y, z));
+			}
+		}
+		// texture coordinate
+		else if (strncmp(s, "vt ", 3) == 0)
+		{
+			if (sscanf(s, "vt %f %f", &x, &y))
+			{
+				tex_coords.push_back(vec2(x, y));
+			}
+		}
+		// face
+		else if (strncmp(s, "f ", 2) == 0)
+		{
+			int component(0), nV(0);
+			bool endOfVertex(false);
+			char* p0, * p1(s + 1);
+
+			std::vector<int> polygon;
+
+			// skip white-spaces
+			while (*p1 == ' ') ++p1;
+
+			while (p1)
+			{
+				p0 = p1;
+
+				// overwrite next separator
+
+				// skip '/', '\n', ' ', '\0', '\r' <-- don't forget Windows
+				while (*p1 != '/' && *p1 != '\r' && *p1 != '\n' && *p1 != ' ' && *p1 != '\0') ++p1;
+
+				// detect end of vertex
+				if (*p1 != '/')
+				{
+					endOfVertex = true;
+				}
+
+				// replace separator by '\0'
+				if (*p1 != '\0')
+				{
+					*p1 = '\0';
+					p1++; // point to next token
+				}
+
+				// detect end of line and break
+				if (*p1 == '\0' || *p1 == '\n')
+				{
+					p1 = 0;
+				}
+
+				// read next vertex component
+				if (*p0 != '\0')
+				{
+					switch (component)
+					{
+					case 0: // vertex
+					{
+						polygon.push_back(atoi(p0) - 1);
+						break;
+					}
+					case 1: // texture coord
+					{
+						//add code for saving texture coordinate index
+						break;
+					}
+					case 2: // normal
+					  //add code for saving normal coordinate index
+						break;
+					}
+				}
+
+				++component;
+
+				if (endOfVertex)
+				{
+					component = 0;
+					nV++;
+					endOfVertex = false;
+				}
+			}
+
+			indices.push_back(polygon);
+		}
+		// clear line
+		memset(&s, 0, 200);
+	}
+	//fclose(in);
+
+	for (int i = 0; i < indices.size(); i++) {
+		for (int j = 0; j < indices[i].size(); j++) {
+			IND.push_back(indices[i][j]);
+		}
+	}
+}
+#pragma endregion
+//*************************Copied up to here*******************************
+
+//int main()//Original main def
+int main(int argc, char* argv[])//Shao added
+{
+	std::string exePath = argv[0];//Line 443 Added 
+
+	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
+	mainWindow.Initialise();
+
+	CreateObjects();
+	CreateShaders();
+
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
+
+	brickTexture = Texture("Textures/brick.png");
+	brickTexture.LoadTextureA();
+	/*//Shao removed this model02
+	plainTexture = Texture("Textures/plain.png");
+	plainTexture.LoadTextureA();
+	*/
+	//shinyMaterial = Material(4.0f, 256);
+	//dullMaterial = Material(0.3f, 4);
+
+	//xwing = Model();
+	//xwing.LoadModel("Models/x-wing.obj");//Shao removed this model03
+
+	//Line451-477****************************************************************
+
+#pragma region Open a Window
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//Open GLFW Window开窗
+	GLFWwindow* MyWindow = glfwCreateWindow(800, 600, "My First Window", NULL, NULL);
+	if (MyWindow == NULL) {
+		printf("Open window failed.");
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(MyWindow);//将当前window作为主要上下文（用这个window）
+	glfwSetInputMode(MyWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // can be GLFW_CURSOR_HIDDEN
+
+	//Init GLEW
+	glewExperimental = true;//实验性的功能设置为true，固定写法
+	if (glewInit() != GLEW_OK) {
+		printf("Init GLEW failed.");
+		glfwTerminate();
+		return -1;
+	}
+	glViewport(0, 0, 800, 600);//设置视角大小，OpenGL预设逆时针画点为正面，顺时针为反面
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);//开启Z-Buffer功能
+
+#pragma endregion
+	//Added up to here***********************************************************
+	//*********************************Line486-515*******************************
+
+	//================================================================================  READ BLENDSHAPES!  =================================================	
+	read_objIND(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\neutral.obj");//Get the indice
+	std::vector<float> v0f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\neutral.obj");
+	std::vector<float> v1f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_jaw_open.obj");
+	std::vector<float> v2f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_kiss.obj");
+	std::vector<float> v3f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_brow_lower.obj");
+	std::vector<float> v4f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_brow_narrow.obj");
+	std::vector<float> v5f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_brow_raise.obj");
+	std::vector<float> v6f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_eye_closed.obj");
+	std::vector<float> v7f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_eye_lower_open.obj");
+	std::vector<float> v8f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_eye_upper_open.obj");
+	std::vector<float> v9f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_nose_wrinkle.obj");
+	std::vector<float> v10f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_puff.obj");
+	std::vector<float> v11f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_sad.obj");
+	std::vector<float> v12f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_smile.obj");
+	std::vector<float> v13f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_l_suck.obj");
+	std::vector<float> v14f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_brow_lower.obj");
+	std::vector<float> v15f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_brow_narrow.obj");
+	std::vector<float> v16f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_brow_raise.obj");
+	std::vector<float> v17f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_eye_closed.obj");
+	std::vector<float> v18f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_eye_lower_open.obj");
+	std::vector<float> v19f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_eye_upper_open.obj");
+	std::vector<float> v20f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_nose_wrinkle.obj");
+	std::vector<float> v21f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_puff.obj");
+	std::vector<float> v22f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_sad.obj");
+	std::vector<float> v23f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_smile.obj");
+	std::vector<float> v24f = read_obj(exePath.substr(0, exePath.find_last_of('\\')) + "\\High-resBlendshapeModel\\Mery_r_suck.obj");
+
+	//高模5000顶点，底模99顶点
+
+	for (int i = 0; i < v0f.size(); i++) {
+		//V[0][i] = v0f[i];
+		V[1][i] = v1f[i] - v0f[i];
+		V[2][i] = v2f[i] - v0f[i];
+		V[3][i] = v3f[i] - v0f[i];
+		V[4][i] = v4f[i] - v0f[i];
+		V[5][i] = v5f[i] - v0f[i];
+		V[6][i] = v6f[i] - v0f[i];
+		V[7][i] = v7f[i] - v0f[i];
+		V[8][i] = v8f[i] - v0f[i];
+		V[9][i] = v9f[i] - v0f[i];
+		V[10][i] = v10f[i] - v0f[i];
+		V[11][i] = v11f[i] - v0f[i];
+		V[12][i] = v12f[i] - v0f[i];
+		V[13][i] = v13f[i] - v0f[i];
+		V[14][i] = v14f[i] - v0f[i];
+		V[15][i] = v15f[i] - v0f[i];
+		V[16][i] = v16f[i] - v0f[i];
+		V[17][i] = v17f[i] - v0f[i];
+		V[18][i] = v18f[i] - v0f[i];
+		V[19][i] = v19f[i] - v0f[i];
+		V[20][i] = v20f[i] - v0f[i];
+		V[21][i] = v21f[i] - v0f[i];
+		V[22][i] = v22f[i] - v0f[i];
+		V[23][i] = v23f[i] - v0f[i];
+		V[24][i] = v24f[i] - v0f[i];
+	}
+
+	//=====================================================  Anttweakbar  ====================================================
+	float w = 0;
+	TwInit(TW_OPENGL_CORE, NULL);
+	TwWindowSize(800, 600);
+	TwBar* myBar;
+	myBar = TwNewBar("BlendShapeWeightCtro");
+	TwAddVarRW(myBar, "weight1", TW_TYPE_FLOAT, &weight[1], "label='JawOpen' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight2", TW_TYPE_FLOAT, &weight[2], "label='Kiss' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight3", TW_TYPE_FLOAT, &weight[3], "label='LeftBrowLower' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight4", TW_TYPE_FLOAT, &weight[4], "label='LeftBrowNarrow' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight5", TW_TYPE_FLOAT, &weight[5], "label='LeftBrowRaise' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight6", TW_TYPE_FLOAT, &weight[6], "label='LeftEyeClose' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight7", TW_TYPE_FLOAT, &weight[7], "label='LeftEyeLowerOpen' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight8", TW_TYPE_FLOAT, &weight[8], "label='LeftEyeUperOpen' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight9", TW_TYPE_FLOAT, &weight[9], "label='LeftNoseWeinkle' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight10", TW_TYPE_FLOAT, &weight[10], "label='LeftPuff' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight11", TW_TYPE_FLOAT, &weight[11], "label='LeftSad' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight12", TW_TYPE_FLOAT, &weight[12], "label='LeftSmile' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight13", TW_TYPE_FLOAT, &weight[13], "label='LeftSuck' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight14", TW_TYPE_FLOAT, &weight[14], "label='RightBrowLower' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight15", TW_TYPE_FLOAT, &weight[15], "label='RightBrowNarrow' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight16", TW_TYPE_FLOAT, &weight[16], "label='RightBrowRaise' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight17", TW_TYPE_FLOAT, &weight[17], "label='RightEyeClose' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight18", TW_TYPE_FLOAT, &weight[18], "label='RightEyeLowerOpen' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight19", TW_TYPE_FLOAT, &weight[19], "label='RightEyeUperOpen' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight20", TW_TYPE_FLOAT, &weight[20], "label='RightNoseWeinkle' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight21", TW_TYPE_FLOAT, &weight[21], "label='RightPuff' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight22", TW_TYPE_FLOAT, &weight[22], "label='RightSad' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight23", TW_TYPE_FLOAT, &weight[23], "label='RightSmile' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+	TwAddVarRW(myBar, "weight24", TW_TYPE_FLOAT, &weight[24], "label='RightSuck' min=0 max=1 step=0.1 keyIncr=u keyDecr=U help='Rotation speed (turns/second)'");
+
+	vec3 bgColor = vec3(1.0f, 1.0f, 0.0f);;
+	TwAddVarRW(myBar, "bgColor", TW_TYPE_COLOR3F, &bgColor, " label='Background color' ");
+
+	glfwSetWindowSizeCallback(MyWindow, (GLFWwindowposfun)TwWindowSizeGLFW3);
+	glfwSetMouseButtonCallback(MyWindow, (GLFWmousebuttonfun)TwEventMouseButtonGLFW3);
+	glfwSetCursorPosCallback(MyWindow, (GLFWcursorposfun)TwEventMousePosGLFW3);
+	glfwSetScrollCallback(MyWindow, (GLFWscrollfun)TwEventMouseWheelGLFW3);
+	glfwSetKeyCallback(MyWindow, (GLFWkeyfun)TwEventKeyGLFW3);
+	glfwSetCharCallback(MyWindow, (GLFWcharfun)TwEventCharGLFW3);
+	//===================================================   AnttweakbarEnd  ===============================================
+
+	//******************************Added up to here*****************************
+
+	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f, 
+								0.3f, 0.6f,
+								0.0f, 0.0f, -1.0f);
+
+	unsigned int pointLightCount = 0;
+	pointLights[0] = PointLight(0.0f, 0.0f, 1.0f,
+								0.0f, 0.1f,
+								0.0f, 0.0f, 0.0f,
+								0.3f, 0.2f, 0.1f);
+	pointLightCount++;
+	pointLights[1] = PointLight(0.0f, 1.0f, 0.0f,
+								0.0f, 0.1f,
+								-4.0f, 2.0f, 0.0f,
+								0.3f, 0.1f, 0.1f);
+	pointLightCount++;
+
+	unsigned int spotLightCount = 0;
+	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+						0.0f, 2.0f,
+						0.0f, 0.0f, 0.0f,
+						0.0f, -1.0f, 0.0f,
+						1.0f, 0.0f, 0.0f,
+						20.0f);
+	spotLightCount++;
+	spotLights[1] = SpotLight(1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, -1.5f, 0.0f,
+		-100.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		20.0f);
+	spotLightCount++;
+
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
+		uniformSpecularIntensity = 0, uniformShininess = 0;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+
+	// Loop until window closed
+	while (!mainWindow.getShouldClose())
+	{
+		GLfloat now = glfwGetTime(); // SDL_GetPerformanceCounter();
+		deltaTime = now - lastTime; // (now - lastTime)*1000/SDL_GetPerformanceFrequency();
+		lastTime = now;
+
+		// Get + Handle User Input
+		glfwPollEvents();
+
+		camera.keyControl(mainWindow.getsKeys(), deltaTime);
+		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+
+		// Clear the window
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		shaderList[0].UseShader();
+		uniformModel = shaderList[0].GetModelLocation();
+		uniformProjection = shaderList[0].GetProjectionLocation();
+		uniformView = shaderList[0].GetViewLocation();
+		uniformEyePosition = shaderList[0].GetEyePositionLocation();
+		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
+		uniformShininess = shaderList[0].GetShininessLocation();
+
+		glm::vec3 lowerLight = camera.getCameraPosition();
+		lowerLight.y -= 0.3f;
+		//spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
+		shaderList[0].SetDirectionalLight(&mainLight);
+		shaderList[0].SetPointLights(pointLights, pointLightCount);
+		shaderList[0].SetSpotLights(spotLights, spotLightCount);
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+
+		glm::mat4 model(1.0f);	
+
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
+		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		brickTexture.UseTexture();
+		//shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[0]->RenderMesh();
+
+		/*//Shao removed this model04 
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 4.0f, -2.5f));
+		//model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		dirtTexture.UseTexture();
+		//dullMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[1]->RenderMesh();
+		*/
+
+		glUseProgram(0);
+
+		mainWindow.swapBuffers();
+	}
+
+	return 0;
+}

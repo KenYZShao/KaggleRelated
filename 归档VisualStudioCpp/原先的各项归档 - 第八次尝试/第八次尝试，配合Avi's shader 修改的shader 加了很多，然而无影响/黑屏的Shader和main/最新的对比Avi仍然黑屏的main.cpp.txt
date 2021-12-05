@@ -1,0 +1,241 @@
+#define STB_IMAGE_IMPLEMENTATION
+
+#include <stdio.h>
+#include <string.h>
+#include <cmath>
+#include <vector>
+
+#include <GL\glew.h>
+#include <GLFW\glfw3.h>
+
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
+
+#include "CommonValues.h"
+
+#include "Window.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "Texture.h"
+//#include "DirectionalLight.h"//Need to be remove
+
+#include "Material.h"
+
+#include "Model.h"
+
+#include "Skybox.h"
+
+const float toRadians = 3.14159265f / 180.0f;
+
+GLuint  uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition=0,
+uniformSpecularIntensity = 0, uniformShininess = 0, uniformFarPlane = 0;
+//uniformDirectionalLightTransform = 0, uniformOmniLightPos = 0, uniformFarPlane = 0;//Need to be changed
+
+Window mainWindow;
+
+
+std::vector<Shader> shaderList;
+//Shader directionalShadowShader;//Wait to being removed 0000000000000003
+//Shader omniShadowShader;//Wait to being removed 0000000000000004
+
+Camera camera;
+
+Material shinyMaterial;
+Material dullMaterial;
+
+
+Model Sphere;//Shao edited 01
+
+//DirectionalLight mainLight;//
+//PointLight pointLights[MAX_POINT_LIGHTS];//
+//SpotLight spotLights[MAX_SPOT_LIGHTS];//
+
+Skybox skybox;
+
+//unsigned int pointLightCount = 0;//
+//unsigned int spotLightCount = 0;//
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
+GLuint skyboxLocation;//How to solve this redline?
+
+
+// Vertex Shader
+static const char* vShader = "Shaders/shader.vert";
+
+// Fragment Shader
+static const char* fShader = "Shaders/shader.frag";
+
+
+void CreateShaders()
+{
+
+	Shader* shader1 = new Shader();
+	shader1->CreateFromFiles(vShader, fShader);
+	shaderList.push_back(*shader1);
+
+}
+
+void RenderScene()
+{
+	//glm::mat4 model(1.0f);//Removed 1.0f, no differences
+	glm::mat4 model;
+	//Shao edited 02 this Chunk of code for loading sphere.
+
+	model = glm::mat4();
+	model = glm::translate(model, glm::vec3(3.0f, 0.0f, -7.0f));//The position of the Sphere
+	model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+	model = glm::rotate(model, -90.0f * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+	shinyMaterial.UseMaterial(uniformSpecularIntensity, uniformShininess);
+	Sphere.RenderModel();
+
+	//Modified Up to here.
+}
+
+/*0000000000000001
+void DirectionalShadowMapPass(DirectionalLight* light)
+{
+	directionalShadowShader.UseShader();
+
+	glViewport(0, 0, light->getShadowMap()->GetShadowWidth(), light->getShadowMap()->GetShadowHeight());
+
+	light->getShadowMap()->Write();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	uniformModel = directionalShadowShader.GetModelLocation();
+	directionalShadowShader.SetDirectionalLightTransform(&light->CalculateLightTransform());
+
+	directionalShadowShader.Validate();
+
+	RenderScene();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+//Above function need to be removed, I skip it first. 
+void OmniShadowMapPass(PointLight* light)
+{
+	omniShadowShader.UseShader();
+
+	glViewport(0, 0, light->getShadowMap()->GetShadowWidth(), light->getShadowMap()->GetShadowHeight());
+
+	light->getShadowMap()->Write();
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	uniformModel = omniShadowShader.GetModelLocation();
+	uniformOmniLightPos = omniShadowShader.GetOmniLightPosLocation();
+	uniformFarPlane = omniShadowShader.GetFarPlaneLocation();
+
+	glUniform3f(uniformOmniLightPos, light->GetPosition().x, light->GetPosition().y, light->GetPosition().z);
+	glUniform1f(uniformFarPlane, light->GetFarPlane());
+	omniShadowShader.SetLightMatrices(light->CalculateLightTransform());
+
+	omniShadowShader.Validate();
+
+	RenderScene();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+//Above function need to be removed, I skip it first.
+*/
+void RenderPass(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+{
+	glViewport(0, 0, 1366, 768);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	skybox.DrawSkybox(viewMatrix, projectionMatrix);
+
+	shaderList[0].UseShader();
+
+	uniformModel = shaderList[0].GetModelLocation();
+	uniformProjection = shaderList[0].GetProjectionLocation();
+	uniformView = shaderList[0].GetViewLocation();
+	uniformModel = shaderList[0].GetModelLocation();
+	uniformEyePosition = shaderList[0].GetEyePositionLocation();
+	uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
+	uniformShininess = shaderList[0].GetShininessLocation();
+
+	glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+
+	
+
+	skyboxLocation = shaderList[0].GetSkyboxLocation();
+	glUniform1i(skyboxLocation, 0);
+
+	shaderList[0].SetTexture(1);
+	shaderList[0].Validate();
+
+	RenderScene();
+}
+
+int main()
+{
+	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
+	mainWindow.Initialise();
+
+	//CreateObjects();
+	CreateShaders();
+
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 5.0f, 0.5f);
+
+
+	shinyMaterial = Material(4.0f, 256);
+	dullMaterial = Material(0.3f, 4);
+
+
+	Sphere = Model();//Shao eidted 03 for loading sphere.
+	Sphere.LoadModel("Models/Quad_Sphere/only_quad_sphere.obj");
+
+	std::vector<std::string> skyboxFaces;
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_lf.tga");
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_up.tga");
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_dn.tga");
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_bk.tga");
+	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
+
+	skybox = Skybox(skyboxFaces);
+
+	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
+		uniformSpecularIntensity = 0, uniformShininess = 0;
+	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 100.0f);
+
+
+	// Loop until window closed
+	while (!mainWindow.getShouldClose())
+	{
+		GLfloat now = glfwGetTime(); // SDL_GetPerformanceCounter();
+		deltaTime = now - lastTime; // (now - lastTime)*1000/SDL_GetPerformanceFrequency();
+		lastTime = now;
+
+		// Get + Handle User Input
+		glfwPollEvents();
+
+		camera.keyControl(mainWindow.getsKeys(), deltaTime);
+		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+
+
+		/*0000000000000002
+		DirectionalShadowMapPass(&mainLight);
+		for (size_t i = 0; i < pointLightCount; i++)
+		{
+			OmniShadowMapPass(&pointLights[i]);//Shao reomved for turning off the spot light,remove this line or not, no difference, flashligh is depended line 458.
+		}
+		for (size_t i = 0; i < spotLightCount; i++)
+		{
+			OmniShadowMapPass(&spotLights[i]);//Shao reomved for turning off the spot light
+		}
+		*/
+		RenderPass(camera.calculateViewMatrix(), projection);
+
+		mainWindow.swapBuffers();
+	}
+
+	return 0;
+}
